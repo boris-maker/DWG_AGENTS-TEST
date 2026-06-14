@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#676767">
+  <title>{{ site_title }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Azeret+Mono:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <style>
+
+    /* ════════════════════════════════════════════════════════════════════════
+       TOKENS
+       ref: bianjie.systems (gray / cream / opacity), antikythera.org (tokens)
+    ════════════════════════════════════════════════════════════════════════ */
+    :root {
+      /* — palette -------------------------------------------------------- */
+      --bg:   #676767;
+      --c0:   rgba(255, 255, 207, 1.00);   /* cream / full — emphasis, hover target */
+      --c1:   rgba(255, 255, 207, 0.85);   /* primary text */
+      --c2:   rgba(255, 255, 207, 0.64);   /* secondary text, body copy */
+      --c3:   rgba(255, 255, 207, 0.40);   /* tertiary, labels, metadata */
+      --c4:   rgba(255, 255, 207, 0.20);   /* borders, dividers (cream) */
+      --d1:   rgba(0, 0, 0, 0.45);         /* dark rule — major section break */
+      --d2:   rgba(0, 0, 0, 0.25);         /* dark rule — item separator */
+
+      /* — type ----------------------------------------------------------- */
+      --f:    'Azeret Mono', 'Courier New', monospace;
+
+      /* — layout --------------------------------------------------------- */
+      --w:    680px;
+      --px:   2.25rem;
+      --py:   4.25rem;
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       RESET
+    ════════════════════════════════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       HTML / BODY
+       — body opacity 0 prevents FOUC while font loads (bianjie pattern)
+       — scrollbar hidden (Poetics of Encryption pattern)
+    ════════════════════════════════════════════════════════════════════════ */
+    html {
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--c1);
+      font-family: var(--f);
+      font-size: 0.875rem;
+      font-weight: 400;
+      line-height: 1.55;
+      max-width: var(--w);
+      margin: 0 auto;
+      padding: var(--py) var(--px);
+      opacity: 0;
+      transition: opacity 1.1s ease;
+      scrollbar-width: none;
+    }
+    body::-webkit-scrollbar { display: none; }
+    body.on { opacity: 1; }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       SELECTION
+    ════════════════════════════════════════════════════════════════════════ */
+    ::selection {
+      background: var(--c0);
+      color: var(--bg);
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       LINKS + HOVER SYSTEM
+       ref: antikythera.org — section dims when child link is hovered
+    ════════════════════════════════════════════════════════════════════════ */
+    a {
+      color: inherit;
+      text-decoration: none;
+      cursor: crosshair;
+      transition: color 0.12s ease;
+    }
+
+    /* When a link inside a section is hovered: dim all text in that section,
+       then re-highlight the hovered link itself. */
+    section:has(a:hover) {
+      color: var(--c3);
+      transition: color 0.12s ease;
+    }
+    section a:hover {
+      color: var(--c0) !important;
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       DIVIDERS
+       ref: bianjie.systems — dark rgba on gray background
+    ════════════════════════════════════════════════════════════════════════ */
+    .rule {
+      height: 1px;
+      background: var(--d1);
+      margin: 3rem 0;
+    }
+
+    .rule-minor {
+      height: 1px;
+      background: var(--d2);
+      margin: 0;
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       HEADER
+    ════════════════════════════════════════════════════════════════════════ */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: first baseline;
+      gap: 2rem;
+      margin-bottom: 5rem;
+    }
+
+    .wordmark {
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--c3);
+      flex-shrink: 0;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 0 1.75rem;
+    }
+
+    nav a {
+      font-size: 0.68rem;
+      font-weight: 400;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--c3);
+    }
+
+    nav a:hover { color: var(--c1) !important; }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       TAGLINE
+    ════════════════════════════════════════════════════════════════════════ */
+    .tagline {
+      margin-bottom: 5rem;
+    }
+
+    .tagline p {
+      font-size: 1.08rem;
+      font-weight: 300;
+      font-style: italic;
+      line-height: 1.42;
+      color: var(--c2);
+      text-align: justify;
+      hyphens: auto;
+    }
+
+    .tagline p + p {
+      margin-top: 0.1rem;
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       SECTION HEADER
+    ════════════════════════════════════════════════════════════════════════ */
+    .sh {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .sh-label {
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.20em;
+      text-transform: uppercase;
+      color: var(--c3);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .sh-rule {
+      flex: 1;
+      height: 1px;
+      background: var(--d1);
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       ABOUT — VIDEO
+       ref: poeticsofencryption — video as document element, "click to unmute"
+    ════════════════════════════════════════════════════════════════════════ */
+    .video-box {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: rgba(0, 0, 0, 0.20);
+      border: 1px solid var(--d1);
+      overflow: hidden;
+      position: relative;
+      margin-bottom: 0.55rem;
+    }
+
+    .video-box iframe,
+    .video-box video {
+      width: 100%;
+      height: 100%;
+      display: block;
+      border: none;
+    }
+
+    .video-box.placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      cursor: default;
+    }
+
+    .ph-title {
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--c3);
+    }
+
+    .ph-sub {
+      font-size: 0.64rem;
+      letter-spacing: 0.06em;
+      color: var(--c4);
+    }
+
+    .video-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 1.75rem;
+    }
+
+    .video-action {
+      font-size: 0.66rem;
+      letter-spacing: 0.1em;
+      color: var(--c3);
+      cursor: crosshair;
+      transition: color 0.12s ease;
+    }
+
+    .video-action:hover { color: var(--c1); }
+
+    .video-caption-label {
+      font-size: 0.66rem;
+      letter-spacing: 0.1em;
+      color: var(--c3);
+      text-transform: uppercase;
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       ABOUT — BODY TEXT
+       ref: poeticsofencryption — justified, tight line-height, hyphenation
+    ════════════════════════════════════════════════════════════════════════ */
+    .about-body {
+      font-size: 0.875rem;
+      line-height: 1.60;
+      color: var(--c2);
+      text-align: justify;
+      hyphens: auto;
+    }
+
+    .about-body p + p { margin-top: 0.9rem; }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       PROGRAMS — two-column grid per entry
+    ════════════════════════════════════════════════════════════════════════ */
+    .prog {
+      display: grid;
+      grid-template-columns: 5.5rem 1fr;
+      grid-template-rows: auto auto auto;
+      column-gap: 1.5rem;
+      padding: 1.5rem 0;
+    }
+
+    .prog + .prog { border-top: 1px solid var(--d2); }
+    .prog:first-of-type { border-top: 1px solid var(--d2); }
+
+    /* last item: bottom border */
+    .prog-list > .prog:last-child {
+      border-bottom: 1px solid var(--d2);
+    }
+
+    .prog-code {
+      grid-column: 1;
+      grid-row: 1;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      color: var(--c0);
+      padding-top: 0.06rem;
+      white-space: nowrap;
+    }
+
+    .prog-name {
+      grid-column: 2;
+      grid-row: 1;
+      font-size: 0.82rem;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+      color: var(--c2);
+    }
+
+    .prog-flag {
+      grid-column: 1;
+      grid-row: 2 / 4;
+      padding-top: 0.5rem;
+    }
+
+    .prog-flag-status {
+      display: block;
+      font-size: 0.62rem;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--c3);
+    }
+
+    .prog-flag-op {
+      display: block;
+      font-size: 0.60rem;
+      letter-spacing: 0.1em;
+      color: var(--c3);
+      margin-top: 0.2rem;
+      text-transform: uppercase;
+    }
+
+    .prog-desc {
+      grid-column: 2;
+      grid-row: 2 / 4;
+      padding-top: 0.5rem;
+      font-size: 0.84rem;
+      line-height: 1.60;
+      color: var(--c2);
+      text-align: justify;
+      hyphens: auto;
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       EPICS
+    ════════════════════════════════════════════════════════════════════════ */
+    .epic {
+      padding: 1.5rem 0;
+    }
+
+    .epic + .epic { border-top: 1px solid var(--d2); }
+    .epic:first-of-type { border-top: 1px solid var(--d2); }
+    .epic-list > .epic:last-child { border-bottom: 1px solid var(--d2); }
+
+    .epic-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .epic-id {
+      display: flex;
+      align-items: baseline;
+      gap: 0.55rem;
+    }
+
+    .epic-glyph {
+      font-size: 0.75rem;
+      line-height: 1;
+    }
+    .epic-glyph.active  { color: var(--c0); }
+    .epic-glyph.archived { color: var(--c3); }
+
+    .epic-code {
+      font-size: 0.84rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--c1);
+    }
+
+    .epic-badges {
+      display: flex;
+      align-items: baseline;
+      gap: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .epic-status {
+      font-size: 0.62rem;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .epic-status.active  { color: var(--c0); }
+    .epic-status.archived { color: var(--c3); }
+
+    .epic-op-tag {
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--c3);
+    }
+
+    .epic-fullname {
+      font-size: 0.74rem;
+      font-weight: 400;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--c3);
+      margin-bottom: 0.75rem;
+    }
+
+    .epic-desc {
+      font-size: 0.84rem;
+      line-height: 1.60;
+      color: var(--c2);
+      text-align: justify;
+      hyphens: auto;
+      margin-bottom: 0.85rem;
+    }
+
+    .epic-link {
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--c3);
+      border-bottom: 1px solid var(--d2);
+      padding-bottom: 1px;
+      cursor: crosshair;
+      transition: color 0.12s ease, border-color 0.12s ease;
+    }
+
+    .epic-link:hover {
+      color: var(--c1) !important;
+      border-color: var(--d1);
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       SHADOW LIBRARY
+    ════════════════════════════════════════════════════════════════════════ */
+    .shadow-body {
+      font-size: 0.875rem;
+      line-height: 1.60;
+      color: var(--c2);
+      text-align: justify;
+      hyphens: auto;
+      margin-bottom: 1.25rem;
+    }
+
+    .shadow-body p + p { margin-top: 0.75rem; }
+
+    .shadow-body strong {
+      font-weight: 600;
+      color: var(--c1);
+    }
+
+    .shadow-link {
+      display: inline-block;
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--c3);
+      border-bottom: 1px solid var(--d2);
+      padding-bottom: 1px;
+      cursor: crosshair;
+      transition: color 0.12s ease;
+    }
+
+    .shadow-link:hover { color: var(--c1) !important; }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       FOOTER
+    ════════════════════════════════════════════════════════════════════════ */
+    footer {
+      margin-top: 4.5rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--d1);
+    }
+
+    .foot-rows {
+      display: grid;
+      grid-template-columns: 10ch 1fr;
+      row-gap: 0.3rem;
+      column-gap: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .foot-k {
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--c3);
+    }
+
+    .foot-v {
+      font-size: 0.65rem;
+      letter-spacing: 0.05em;
+      color: var(--c2);
+    }
+
+    .foot-note {
+      font-size: 0.65rem;
+      font-style: italic;
+      letter-spacing: 0.05em;
+      color: var(--c3);
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       RESPONSIVE
+    ════════════════════════════════════════════════════════════════════════ */
+    @media (max-width: 44rem) {
+      body { padding: 3rem 1.25rem 4.5rem; }
+      header { flex-direction: column; gap: 0.75rem; }
+      nav { justify-content: flex-start; gap: 0 1.25rem; }
+      .prog {
+        grid-template-columns: 1fr;
+      }
+      .prog-code { grid-row: 1; grid-column: 1; }
+      .prog-name { grid-row: 2; grid-column: 1; margin-top: 0.2rem; }
+      .prog-flag { grid-row: 4; grid-column: 1; padding-top: 0.35rem; display: flex; gap: 1rem; }
+      .prog-desc { grid-row: 3; grid-column: 1; }
+      .epic-head { flex-wrap: wrap; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ─────────────────────────────────────────────── HEADER -->
+  <header>
+    <span class="wordmark">{{ site_title }}</span>
+    <nav>
+      <a href="#programs">Programs</a>
+      <a href="#epics">Epics</a>
+      <a href="#shadow-library">Shadow Library</a>
+      <a href="#about">About</a>
+    </nav>
+  </header>
+
+  <!-- ─────────────────────────────────────────────── TAGLINE -->
+  <div class="tagline">
+    <p>{{ tagline_1 }}</p>
+    <p>{{ tagline_2 }}</p>
+  </div>
+
+  <div class="rule"></div>
+
+  <!-- ─────────────────────────────────────────────── ABOUT -->
+  <section id="about">
+    <div class="sh">
+      <span class="sh-label">About</span>
+      <div class="sh-rule"></div>
+    </div>
+
+    <!-- video -->
+{% if video_url %}
+    <div class="video-box">
+      <iframe
+        id="video-frame"
+        src="{{ video_url }}{% if '?' in video_url %}&{% else %}?{% endif %}autoplay=1&mute=1&controls=1"
+        allow="autoplay; encrypted-media; fullscreen"
+        allowfullscreen
+        title="{{ site_title }} — studio and thesis">
+      </iframe>
+    </div>
+    <div class="video-meta">
+      <span class="video-action" id="mute-btn" onclick="toggleMute()">Click to unmute.</span>
+      <span class="video-caption-label">Studio &amp; thesis</span>
+    </div>
+{% else %}
+    <div class="video-box placeholder">
+      <span class="ph-title">Video — pending production</span>
+      <span class="ph-sub">Studio and thesis. Set video_url in CONFIG to activate.</span>
+    </div>
+    <div class="video-meta">
+      <span></span>
+      <span class="video-caption-label">Studio &amp; thesis</span>
+    </div>
+{% endif %}
+
+    <!-- body text -->
+    <div class="about-body">
+{% if video_caption %}
+      <p>{{ video_caption }}</p>
+{% else %}
+      <p>
+        DeepWebGallery is not a gallery in the traditional sense.
+        No fixed physical space. No stable staff roster. No single institutional voice.
+      </p>
+      <p>
+        It is a research-first operation — a recurring convergence of individuals
+        (artists, engineers, theorists, curators, writers) who synchronize around
+        explicit programs and projects. The organization is itself as much an output
+        as what it produces.
+      </p>
+      <p>
+        The operative logic is decentralized collaboration. People work under aliases.
+        There is no single author. Operating on the deep web is not a technical
+        detail — it is a position. An argument made through presence about what online
+        space is, who controls it, and what symbolic power looks like when those
+        systems are made visible or deliberately evaded.
+      </p>
+{% endif %}
+    </div>
+  </section>
+
+  <div class="rule"></div>
+
+  <!-- ─────────────────────────────────────────────── PROGRAMS -->
+  <section id="programs">
+    <div class="sh">
+      <span class="sh-label">Programs</span>
+      <div class="sh-rule"></div>
+    </div>
+
+    <div class="prog-list">
+{% for program in programs %}
+      <div class="prog">
+        <span class="prog-code">{{ program.code }}</span>
+        <span class="prog-name">{{ program.name }}</span>
+        <div class="prog-flag">
+          <span class="prog-flag-status">{{ program.status }}</span>
+          <span class="prog-flag-op">{{ program.operator if program.operator else '—' }}</span>
+        </div>
+        <p class="prog-desc">{{ program.description }}</p>
+      </div>
+{% endfor %}
+    </div>
+  </section>
+
+  <div class="rule"></div>
+
+  <!-- ─────────────────────────────────────────────── EPICS -->
+  <section id="epics">
+    <div class="sh">
+      <span class="sh-label">Epics</span>
+      <div class="sh-rule"></div>
+    </div>
+
+    <div class="epic-list">
+{% for epic in epics %}
+      <div class="epic">
+        <div class="epic-head">
+          <div class="epic-id">
+            <span class="epic-glyph {{ epic.status }}">{% if epic.status == 'active' %}◆{% else %}■{% endif %}</span>
+            <span class="epic-code">{{ epic.code }}</span>
+          </div>
+          <div class="epic-badges">
+            <span class="epic-status {{ epic.status }}">{{ epic.status }}</span>
+{% if epic.current_op %}
+            <span class="epic-op-tag">{{ epic.current_op }}</span>
+{% endif %}
+          </div>
+        </div>
+        <p class="epic-fullname">{{ epic.name }}</p>
+        <p class="epic-desc">{{ epic.description }}</p>
+{% if epic.url %}
+        <a href="{{ epic.url }}" class="epic-link" target="_blank" rel="noopener">→ View operation</a>
+{% endif %}
+      </div>
+{% endfor %}
+    </div>
+  </section>
+
+  <div class="rule"></div>
+
+  <!-- ─────────────────────────────────────────────── SHADOW LIBRARY -->
+  <section id="shadow-library">
+    <div class="sh">
+      <span class="sh-label">Shadow Library</span>
+      <div class="sh-rule"></div>
+    </div>
+
+    <div class="shadow-body">
+      <p>The <strong>Deep Web Gallery Shadow Library</strong> is the program's
+      para-academic layer — symposium papers, critical texts, operational
+      documents, and research outputs formatted for public distribution.</p>
+      <p>It is a publication operation. Not a blog.</p>
+    </div>
+    <a href="{{ shadow_library_url }}" class="shadow-link" target="_blank" rel="noopener">→ Access archive</a>
+  </section>
+
+  <!-- ─────────────────────────────────────────────── FOOTER -->
+  <footer>
+    <div class="foot-rows">
+      <span class="foot-k">Governance</span>
+      <span class="foot-v">{{ governance }}</span>
+      <span class="foot-k">Contact</span>
+      <span class="foot-v">{{ contact }}</span>
+      <span class="foot-k">Since</span>
+      <span class="foot-v">{{ since_year }}</span>
+    </div>
+    <p class="foot-note">Not indexed. Not searchable. Present by presence.</p>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.body.classList.add('on');
+    });
+
+    /* mute toggle — no-ops if video element absent (placeholder state) */
+    var _m = true;
+    function toggleMute() {
+      var f = document.getElementById('video-frame');
+      var b = document.getElementById('mute-btn');
+      if (!f || !b) return;
+      f.src = f.src.replace(_m ? 'mute=1' : 'mute=0', _m ? 'mute=0' : 'mute=1');
+      b.textContent = _m ? 'Click to mute.' : 'Click to unmute.';
+      _m = !_m;
+    }
+  </script>
+
+</body>
+</html>

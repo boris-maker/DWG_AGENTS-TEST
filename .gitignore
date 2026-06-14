@@ -1,7 +1,8 @@
 .env
 credentials.json
 token.json
-.tmp/
+.tmp/*
+!.tmp/.gitkeep
 __pycache__/
 *.pyc
 .DS_Store

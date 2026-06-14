@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ page_title }}</title>
+  <meta name="description" content="{{ meta_description }}">
+  <meta name="author" content="{{ author }}">
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" defer></script>
+  <style>
+    /* ── TOKENS ──────────────────────────────────────────────── */
+    :root {
+      --bg:      #0a0a0a;
+      --fg:      #e8e8e8;
+      --accent:  #ff2d2d;
+      --accent2: #00ffcc;
+      --dim:     #555;
+      --border:  #1e1e1e;
+      --mono:    'Courier New', Courier, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--mono);
+      font-size: 14px;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { opacity: 0.75; }
+
+    /* ── STICKY NAV ──────────────────────────────────────────── */
+    #top-bar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10,10,10,0.97);
+      border-bottom: 1px solid var(--border);
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      backdrop-filter: blur(4px);
+    }
+
+    .top-bar-id {
+      color: var(--dim);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .top-bar-id strong { color: var(--fg); }
+
+    .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: inline-block;
+      flex-shrink: 0;
+      animation: dot-pulse 2s ease-in-out infinite;
+    }
+
+    .top-bar-nav {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .nav-pill {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.75rem;
+      border: 1px solid var(--border);
+      color: var(--dim);
+      background: transparent;
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color 0.15s, color 0.15s;
+      border-radius: 0;
+    }
+
+    .nav-pill:hover { color: var(--fg); border-color: #333; opacity: 1; }
+    .nav-pill.fund:hover { color: var(--accent2); border-color: var(--accent2); }
+    .nav-pill.hunt:hover { color: var(--accent); border-color: var(--accent); }
+
+    /* ── LAYOUT ──────────────────────────────────────────────── */
+    .wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 3rem 2rem 6rem;
+    }
+
+    /* ── SECTION LABEL — glyph prefix + inline rule ──────────── */
+    .sec-label {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 2.5rem 0 1rem;
+    }
+
+    .sec-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .sec-label.teal { color: var(--accent2); }
+
+    /* ── SECTION HEADER (major anchored sections) ────────────── */
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-header h2 {
+      font-size: 11px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: normal;
+    }
+
+    .section-header h2.teal { color: var(--accent2); }
+
+    .section-header-sub {
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      color: var(--dim);
+      text-transform: uppercase;
+    }
+
+    /* ── DIVIDER ─────────────────────────────────────────────── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 3.5rem 0;
+    }
+
+    /* ── HERO ────────────────────────────────────────────────── */
+    .hero { margin-bottom: 2.5rem; }
+
+    .hero-eyebrow {
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 0.75rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.4rem, 6.5vw, 4.5rem);
+      letter-spacing: 0.02em;
+      color: #fff;
+      line-height: 1.0;
+      margin-bottom: 0.75rem;
+    }
+
+    .hero-target {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-target strong { color: var(--fg); }
+
+    /* ── CONTEXT BLOCK — terminal box ────────────────────────── */
+    .context-block {
+      border: 1px solid var(--border);
+      padding: 1rem 1.25rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .context-block-header {
+      font-size: 9px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #2a2a2a;
+      margin-bottom: 0.75rem;
+    }
+
+    .context-block p {
+      font-size: 13px;
+      color: #999;
+      line-height: 1.9;
+    }
+
+    .context-block p + p { margin-top: 0.5rem; }
+    .context-block strong { color: var(--fg); }
+    .context-block em { font-style: normal; color: var(--accent); }
+
+    /* ── BOUNTY POT ──────────────────────────────────────────── */
+    .pot-hero {
+      border: 1px solid var(--border);
+      padding: 2.25rem 2rem 1.75rem;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .pot-hero-label {
+      font-size: 9px;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 1rem;
+    }
+
+    .pot-hero-number {
+      font-size: clamp(3rem, 9vw, 5.5rem);
+      color: var(--accent);
+      letter-spacing: 0.02em;
+      line-height: 1;
+      margin-bottom: 1.25rem;
+    }
+
+    .pot-hero-number.loading { color: #222; }
+
+    .pot-unit {
+      font-size: 1.4rem;
+      color: var(--dim);
+      vertical-align: super;
+      margin-right: 0.25rem;
+    }
+
+    .pot-bar {
+      height: 3px;
+      background: #141414;
+      margin: 0 auto 0.75rem;
+      max-width: 480px;
+    }
+
+    .pot-bar-fill {
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+      transition: width 1.2s ease;
+    }
+
+    .pot-stats {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--dim);
+    }
+
+    .pot-stats span strong { color: var(--fg); }
+
+    /* ── PATH BLOCKS — flat rows, replaces card grid ─────────── */
+    .path-blocks { margin: 1.5rem 0 3rem; }
+
+    .path-block {
+      padding: 1.5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .path-block:first-child { border-top: 1px solid var(--border); }
+
+    .path-block-header {
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .path-glyph {
+      font-size: 12px;
+      color: var(--dim);
+      flex-shrink: 0;
+    }
+
+    .path-title {
+      font-size: 13px;
+      color: var(--fg);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .path-sub {
+      font-size: 10px;
+      color: var(--dim);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .path-body {
+      font-size: 13px;
+      color: #888;
+      line-height: 1.85;
+      margin-bottom: 1.25rem;
+      padding-left: 1.5rem;
+    }
+
+    .path-body strong { color: var(--fg); }
+
+    .path-btn {
+      display: inline-block;
+      padding: 0.6rem 1.5rem;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: opacity 0.15s;
+      margin-left: 1.5rem;
+      border-radius: 0;
+    }
+
+    .path-btn:hover { opacity: 0.82; }
+    .path-btn-fund { background: var(--accent2); color: #000; }
+    .path-btn-hunt { background: var(--accent); color: #000; }
+
+    /* ── HOW IT WORKS — numbered procedure list ──────────────── */
+    .how-steps { margin: 0 0 3rem; }
+
+    .how-row {
+      display: flex;
+      gap: 1.5rem;
+      padding: 1.1rem 0;
+      border-bottom: 1px solid var(--border);
+      align-items: flex-start;
+    }
+
+    .how-row:first-child { border-top: 1px solid var(--border); }
+
+    .how-num {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      min-width: 2rem;
+      flex-shrink: 0;
+      padding-top: 0.2rem;
+    }
+
+    .how-content { flex: 1; }
+
+    .how-title {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--fg);
+      margin-bottom: 0.3rem;
+    }
+
+    .how-detail {
+      font-size: 12px;
+      color: var(--dim);
+      line-height: 1.75;
+    }
+
+    /* ── FUND SECTION ────────────────────────────────────────── */
+    .fund-why {
+      font-size: 13px;
+      line-height: 1.9;
+      color: #999;
+      margin-bottom: 1.75rem;
+    }
+
+    .fund-why strong { color: var(--fg); }
+    .fund-why em { font-style: normal; color: var(--accent2); }
+
+    .trust-row {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 1.75rem;
+      flex-wrap: wrap;
+    }
+
+    .trust-item {
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--dim);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .trust-item::before {
+      content: '✓';
+      color: var(--accent2);
+      font-size: 11px;
+    }
+
+    .wallet-block {
+      border: 1px solid #181818;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .wallet-sub-label {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #2a2a2a;
+      margin-bottom: 0.3rem;
+    }
+
+    .wallet-ens {
+      font-size: 1.4rem;
+      color: var(--accent2);
+      letter-spacing: 0.04em;
+      margin-bottom: 0.5rem;
+    }
+
+    .wallet-address {
+      font-size: 11px;
+      color: var(--dim);
+      letter-spacing: 0.04em;
+      word-break: break-all;
+      cursor: pointer;
+      transition: color 0.15s;
+      margin-bottom: 0.75rem;
+    }
+
+    .wallet-address:hover { color: var(--fg); }
+
+    .wallet-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .wallet-btn {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.35rem 0.75rem;
+      border: 1px solid #222;
+      color: var(--accent2);
+      background: transparent;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      text-decoration: none;
+      display: inline-block;
+      border-radius: 0;
+    }
+
+    .wallet-btn:hover { background: var(--accent2); color: #000; opacity: 1; }
+
+    #qr-container { margin-top: 1.25rem; display: none; }
+    #qr-container.visible { display: block; }
+
+    #qr-code {
+      display: inline-block;
+      padding: 0.65rem;
+      background: #fff;
+    }
+
+    .qr-label {
+      font-size: 9px;
+      color: var(--dim);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+
+    /* ── CONTRIBUTORS TABLE ──────────────────────────────────── */
+    .contributors-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 0.5rem;
+    }
+
+    .contributors-table th {
+      text-align: left;
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--dim);
+      padding: 0.35rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .contributors-table td {
+      padding: 0.45rem 0;
+      border-bottom: 1px solid #111;
+      color: var(--fg);
+    }
+
+    .contributors-table td:last-child { text-align: right; color: var(--accent2); }
+
+    .contributors-empty {
+      font-size: 11px;
+      color: #2a2a2a;
+      letter-spacing: 0.1em;
+      padding: 0.75rem 0;
+    }
+
+    /* ── HUNT SECTION ────────────────────────────────────────── */
+    .hunt-intro {
+      font-size: 13px;
+      color: #999;
+      line-height: 1.9;
+      margin-bottom: 1.75rem;
+    }
+
+    .hunt-intro strong { color: var(--fg); }
+    .hunt-intro em { font-style: normal; color: var(--accent); }
+
+    /* ── REGISTER BLOCKS — flat rows, replaces vuln grid ────── */
+    .register-blocks { margin: 1rem 0 1.5rem; }
+
+    .register-block {
+      padding: 1.25rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .register-block:first-child { border-top: 1px solid var(--border); }
+
+    .register-type {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--fg);
+      margin-bottom: 0.15rem;
+    }
+
+    .register-tag {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 0.75rem;
+    }
+
+    .register-desc {
+      font-size: 12px;
+      color: #888;
+      line-height: 1.75;
+      margin-bottom: 0.75rem;
+    }
+
+    .register-examples {
+      list-style: none;
+      padding: 0;
+    }
+
+    .register-examples li {
+      font-size: 11px;
+      color: var(--dim);
+      padding: 0.2rem 0;
+      border-bottom: 1px solid #111;
+    }
+
+    .register-examples li:last-child { border-bottom: none; }
+    .register-examples li::before { content: '— '; color: #2a2a2a; }
+
+    .register-note {
+      font-size: 11px;
+      color: #2a2a2a;
+      letter-spacing: 0.1em;
+      margin-top: 0.75rem;
+    }
+
+    /* ── HOW TO SUBMIT ───────────────────────────────────────── */
+    .submit-steps { margin: 1rem 0; }
+
+    .submit-step {
+      display: flex;
+      gap: 1.25rem;
+      padding: 0.85rem 0;
+      border-bottom: 1px solid var(--border);
+      align-items: flex-start;
+    }
+
+    .submit-step:first-child { border-top: 1px solid var(--border); }
+    .submit-step:last-child { border-bottom: none; }
+
+    .submit-step-num {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      min-width: 1.5rem;
+      flex-shrink: 0;
+      padding-top: 0.15rem;
+    }
+
+    .submit-step-body { flex: 1; }
+
+    .submit-step-title {
+      font-size: 12px;
+      color: var(--fg);
+      margin-bottom: 0.2rem;
+    }
+
+    .submit-step-detail {
+      font-size: 11px;
+      color: var(--dim);
+      line-height: 1.7;
+    }
+
+    /* ── PROTOCOL ────────────────────────────────────────────── */
+    .protocol-block {
+      border: 1px solid #1a0000;
+      padding: 1.25rem 1.5rem;
+      margin: 1.25rem 0;
+    }
+
+    .protocol-label {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    .protocol-rule {
+      display: flex;
+      gap: 1rem;
+      padding: 0.45rem 0;
+      border-bottom: 1px solid #140000;
+      font-size: 12px;
+    }
+
+    .protocol-rule:last-child { border-bottom: none; }
+
+    .rule-num { color: var(--accent); min-width: 1.5rem; font-size: 11px; flex-shrink: 0; }
+    .rule-text { color: var(--fg); }
+    .rule-text small { color: var(--dim); font-size: 10px; display: block; margin-top: 0.1rem; }
+
+    /* ── JURY ────────────────────────────────────────────────── */
+    .jury-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      margin: 0.75rem 0;
+    }
+
+    .jury-card {
+      background: var(--bg);
+      padding: 1rem;
+    }
+
+    .jury-handle { color: var(--fg); font-size: 13px; margin-bottom: 0.15rem; }
+    .jury-role { font-size: 10px; color: var(--dim); letter-spacing: 0.1em; text-transform: uppercase; }
+    .jury-affiliation { font-size: 10px; color: #2a2a2a; margin-top: 0.15rem; }
+
+    .jury-empty {
+      font-size: 11px;
+      color: #2a2a2a;
+      letter-spacing: 0.1em;
+      padding: 1.25rem;
+      text-align: center;
+      background: var(--bg);
+    }
+
+    .jury-seats-block {
+      border: 1px solid #1a3a2a;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .jury-seats-label {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin-bottom: 0.75rem;
+    }
+
+    .jury-seats-block p {
+      font-size: 12px;
+      color: #888;
+      line-height: 1.7;
+      margin-bottom: 1rem;
+    }
+
+    /* ── REWARD BLOCK ────────────────────────────────────────── */
+    .reward-block {
+      border: 1px solid #1a0000;
+      padding: 1.1rem 1.25rem;
+      margin: 1.25rem 0;
+    }
+
+    .reward-label {
+      font-size: 9px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.65rem;
+    }
+
+    .reward-line {
+      font-size: 12px;
+      color: var(--fg);
+      padding: 0.25rem 0;
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .reward-line::before { content: '→'; color: var(--accent); flex-shrink: 0; }
+
+    /* ── SUBMIT CTA ──────────────────────────────────────────── */
+    .submit-cta {
+      display: block;
+      padding: 1.2rem 2rem;
+      background: var(--accent);
+      color: #000;
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin: 2rem 0;
+      transition: opacity 0.15s;
+      text-align: left;
+    }
+
+    .submit-cta:hover { opacity: 0.85; color: #000; }
+
+    /* ── COUNTDOWN ───────────────────────────────────────────── */
+    .countdown {
+      text-align: center;
+      padding: 2rem;
+      border: 1px solid var(--border);
+      margin: 2.5rem 0;
+    }
+
+    .countdown-label {
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 0.5rem;
+    }
+
+    .countdown-timer {
+      font-size: clamp(1.6rem, 4.5vw, 2.8rem);
+      letter-spacing: 0.08em;
+      font-variant-numeric: tabular-nums;
+      color: var(--accent);
+    }
+
+    .countdown-timer.green  { color: #00ff88; }
+    .countdown-timer.yellow { color: #ffcc00; }
+    .countdown-timer.red    { color: var(--accent); }
+
+    .countdown-deadline {
+      font-size: 11px;
+      color: var(--dim);
+      margin-top: 0.35rem;
+    }
+
+    /* ── FOOTER ──────────────────────────────────────────────── */
+    .site-footer {
+      margin-top: 3.5rem;
+      padding: 1.75rem 0 1rem;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--dim);
+      line-height: 1.9;
+    }
+
+    .footer-rule { border: none; border-top: 1px solid #111; margin: 1.25rem 0; }
+
+    .footer-section-title {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #2a2a2a;
+      margin-bottom: 0.4rem;
+    }
+
+    /* ── KEYFRAMES ───────────────────────────────────────────── */
+    @keyframes dot-pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.2; }
+    }
+
+    /* ── RESPONSIVE ──────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      .wrap { padding: 1.5rem 1.25rem 4rem; }
+      #top-bar { padding: 0 1.25rem; }
+      #top-bar .top-bar-id span:not(.status-dot):not([data-show-mobile]) { display: none; }
+      .top-bar-nav { overflow-x: auto; }
+      .pot-stats { flex-direction: column; gap: 0.4rem; align-items: center; }
+      .trust-row { gap: 1rem; }
+      .path-btn { margin-left: 0; display: block; text-align: center; }
+      .path-body { padding-left: 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── STICKY NAV ───────────────────────────────────────────── -->
+<nav id="top-bar">
+  <div class="top-bar-id">
+    <span class="status-dot"></span>
+    <strong data-show-mobile>CICFA</strong>
+    <span>// {{ operation_id }}</span>
+    <span style="color:#2a2a2a">{{ program_code }}</span>
+  </div>
+  <div class="top-bar-nav">
+    <a class="nav-pill fund" href="#fund">⊕ Fund</a>
+    <a class="nav-pill hunt" href="#hunt">⊗ Hunt</a>
+  </div>
+</nav>
+
+<!-- ════ MAIN ════════════════════════════════════════════════ -->
+<div class="wrap">
+
+  <!-- ── HERO ──────────────────────────────────────────────── -->
+  <div class="hero">
+    <div class="hero-eyebrow">Cultural Infrastructure Critical Failure Attack</div>
+    <h1>{{ operation_name }}</h1>
+    <div class="hero-target">
+      Operation {{ operation_id }} &nbsp;//&nbsp;
+      Target: <strong>{{ target_name }}</strong> &nbsp;//&nbsp; {{ target_location }}
+    </div>
+  </div>
+
+  <!-- ── CONTEXT ────────────────────────────────────────────── -->
+  <div class="context-block">
+    <div class="context-block-header">◆ OPERATION BRIEF</div>
+    <p>
+      CICFA applies <strong>bug bounty methodology to cultural institutions</strong>.
+      Instead of servers, the target is institutional logic — governance structures,
+      symbolic contradictions, and real digital infrastructure.
+    </p>
+    <p>
+      Find a vulnerability in <strong>{{ target_name }}</strong>.
+      Submit a disclosure. A jury votes.
+      <em>If approved, the ETH bounty transfers directly to you.</em>
+    </p>
+  </div>
+
+  <!-- ── BOUNTY POT ─────────────────────────────────────────── -->
+  <div class="pot-hero">
+    <div class="pot-hero-label">Current Bounty Pool — Verified On-Chain</div>
+    <div class="pot-hero-number loading" id="pot-amount">
+      <span class="pot-unit">Ξ</span><span id="pot-value">···</span>
+    </div>
+    <div class="pot-bar">
+      <div class="pot-bar-fill" id="pot-progress-fill"></div>
+    </div>
+    <div class="pot-stats">
+      <span id="pot-goal-text" style="color:#2a2a2a;">&nbsp;</span>
+      <span id="pot-contributors-text" style="color:var(--dim);">Loading&hellip;</span>
+      {% if deadline_iso %}
+      <span>Closes <strong id="pot-deadline-label">{{ deadline_display }}</strong></span>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ── TWO PATHS — flat blocks ────────────────────────────── -->
+  <div class="path-blocks">
+    <div class="path-block">
+      <div class="path-block-header">
+        <span class="path-glyph">⊕</span>
+        <span class="path-title">Fund the Bounty</span>
+        <span class="path-sub">For supporters and patrons</span>
+      </div>
+      <div class="path-body">
+        Add ETH to the prize pool. The bigger the pot, the higher the stakes —
+        and the more pressure on the institution.
+        <strong>Funding is a critical gesture.</strong>
+        It asserts that institutional critique has market value.
+      </div>
+      <a href="#fund" class="path-btn path-btn-fund">Add to the Pot →</a>
+    </div>
+    <div class="path-block">
+      <div class="path-block-header">
+        <span class="path-glyph">⊗</span>
+        <span class="path-title">Hunt a Vulnerability</span>
+        <span class="path-sub">For researchers, artists, and critics</span>
+      </div>
+      <div class="path-body">
+        Surface a real finding — symbolic or technical.
+        Write the disclosure. Submit it.
+        <strong>If the jury approves, you win the entire ETH pool.</strong>
+        One winner per operation.
+      </div>
+      <a href="#hunt" class="path-btn path-btn-hunt">Take the Bounty →</a>
+    </div>
+  </div>
+
+  <!-- ── HOW IT WORKS ───────────────────────────────────────── -->
+  <div class="sec-label">◆ How It Works</div>
+  <div class="how-steps">
+    <div class="how-row">
+      <div class="how-num">01</div>
+      <div class="how-content">
+        <div class="how-title">Submit</div>
+        <div class="how-detail">
+          Hunters surface a vulnerability in {{ target_name }}'s
+          institutional logic or public digital infrastructure
+          and send a written disclosure.
+        </div>
+      </div>
+    </div>
+    <div class="how-row">
+      <div class="how-num">02</div>
+      <div class="how-content">
+        <div class="how-title">Verify</div>
+        <div class="how-detail">
+          The CICFA Jury — independent, wallet-identified —
+          reviews the submission and votes. Simple majority.
+          No anonymous adjudication.
+        </div>
+      </div>
+    </div>
+    <div class="how-row">
+      <div class="how-num">03</div>
+      <div class="how-content">
+        <div class="how-title">Win</div>
+        <div class="how-detail">
+          On approval, the full ETH bounty pool transfers
+          directly to the hunter's wallet. No intermediary.
+          No delay. The finding enters the archive.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ══════════════════════════════════════════════════════════
+       FUND PATH
+  ══════════════════════════════════════════════════════════ -->
+  <div id="fund">
+    <div class="section-header">
+      <h2 class="teal">⊕ Fund the Bounty</h2>
+      <span class="section-header-sub">For supporters and patrons</span>
+    </div>
+
+    <p class="fund-why">
+      Every contribution arms the program and increases the prize.
+      When the pot grows, so does the incentive for hunters — and the
+      symbolic weight of the operation. <em>The act of funding is itself
+      a critical gesture</em>: an assertion that institutional critique
+      has <strong>market value</strong>.
+    </p>
+
+    <div class="trust-row">
+      <span class="trust-item">On-chain &amp; transparent</span>
+      <span class="trust-item">Verifiable via Etherscan</span>
+      <span class="trust-item">Funds held in the bounty wallet until payout</span>
+    </div>
+
+    <div class="wallet-block">
+      {% if wallet_ens %}
+      <div class="wallet-sub-label">ENS Name</div>
+      <div class="wallet-ens">{{ wallet_ens }}</div>
+      {% endif %}
+      {% if wallet_address %}
+      <div class="wallet-sub-label" style="margin-top:0.5rem;">Ethereum Address</div>
+      <div class="wallet-address" id="wallet-addr-display" onclick="copyAddress()" title="Click to copy">
+        {{ wallet_address }}
+      </div>
+      <div class="wallet-actions">
+        <button class="wallet-btn" id="copy-btn" onclick="copyAddress()">[ Copy Address ]</button>
+        <button class="wallet-btn" onclick="toggleQR()">[ Show QR ]</button>
+        <a class="wallet-btn" href="https://etherscan.io/address/{{ wallet_address }}" target="_blank" rel="noopener">[ Etherscan ]</a>
+      </div>
+      <div id="qr-container">
+        <div class="qr-label" style="margin-top:0.75rem;">Scan to send ETH</div>
+        <div id="qr-code"></div>
+      </div>
+      {% else %}
+      <div class="wallet-sub-label">Status</div>
+      <div style="color:var(--dim); font-size:12px; padding:0.5rem 0;">
+        WALLET ADDRESS TBD — CHECK BACK SOON
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="sec-label teal">◆ Contributors</div>
+    <table class="contributors-table">
+      <thead>
+        <tr>
+          <th>Handle</th>
+          <th>Amount (ETH)</th>
+        </tr>
+      </thead>
+      <tbody id="contributors-body">
+        {% if contributors %}
+          {% for c in contributors %}
+          <tr>
+            <td>{{ c.handle }}</td>
+            <td>Ξ {{ c.amount }}</td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr>
+          <td colspan="2">
+            <div class="contributors-empty">NO CONTRIBUTORS YET — BE THE FIRST</div>
+          </td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ══════════════════════════════════════════════════════════
+       HUNT PATH
+  ══════════════════════════════════════════════════════════ -->
+  <div id="hunt">
+    <div class="section-header">
+      <h2>⊗ Hunt a Vulnerability</h2>
+      <span class="section-header-sub">For researchers, artists, and critics</span>
+    </div>
+
+    <p class="hunt-intro">
+      {{ target_name }} has been designated as the first CICFA target.
+      Your job is to surface a genuine vulnerability — something real,
+      specific, and documented. Vague critique doesn't qualify.
+      <em>A verified finding wins the entire bounty pool.</em>
+    </p>
+
+    <!-- MISSION BRIEF -->
+    <div class="sec-label">◆ Mission Brief</div>
+    <div style="border-left: 2px solid var(--border); padding-left: 1.1rem; margin-bottom: 1.5rem;">
+      {{ brief_html }}
+    </div>
+
+    <!-- VULNERABILITY TYPES -->
+    <div class="sec-label">◆ What Counts as a Vulnerability</div>
+    <div class="register-blocks">
+      <div class="register-block">
+        <div class="register-type">Symbolic</div>
+        <div class="register-tag">Register A — Conceptual / Structural</div>
+        <div class="register-desc">
+          A structural contradiction, power leak, governance exploit,
+          or curatorial blindspot in the institution's logic.
+          Institutional critique as vulnerability disclosure.
+        </div>
+        <ul class="register-examples">
+          <li>Corporate board composition + sponsorship conflicts</li>
+          <li>Canon formation: whose work enters the collection?</li>
+          <li>Ticket pricing vs. "public institution" mandate</li>
+          <li>Labor disputes and staff organizing</li>
+          <li>Expansion history and franchise logic</li>
+        </ul>
+      </div>
+      <div class="register-block">
+        <div class="register-type">Technical</div>
+        <div class="register-tag">Register B — White Hat / Digital Infrastructure</div>
+        <div class="register-desc">
+          A real security or opsec finding in the institution's
+          public digital infrastructure. No exploitation. No harm.
+          Submit through CICFA — we handle responsible disclosure.
+        </div>
+        <ul class="register-examples">
+          <li>Public website and API endpoints</li>
+          <li>Ticketing system opsec</li>
+          <li>Digital collection infrastructure</li>
+          <li>Subdomain enumeration / cert exposure</li>
+          <li>Public data leaks or misconfigured assets</li>
+        </ul>
+      </div>
+    </div>
+    <p class="register-note">Both types are valid. A single submission can combine them.</p>
+
+    <!-- HOW TO SUBMIT -->
+    <div class="sec-label">◆ How to Submit</div>
+    <div class="submit-steps">
+      <div class="submit-step">
+        <div class="submit-step-num">01</div>
+        <div class="submit-step-body">
+          <div class="submit-step-title">Write the disclosure</div>
+          <div class="submit-step-detail">
+            Document, visual diagram, or web artifact. 1–3 pages.
+            Must be specific enough to verify — name the vulnerability,
+            explain the mechanism, show the evidence.
+          </div>
+        </div>
+      </div>
+      <div class="submit-step">
+        <div class="submit-step-num">02</div>
+        <div class="submit-step-body">
+          <div class="submit-step-title">Submit via the link below</div>
+          <div class="submit-step-detail">
+            Include your ETH wallet address for payout.
+            Register B findings are held in confidence for 30 days
+            before public archival. The institution is notified by
+            formal disclosure letter (itself a CICFA artifact).
+          </div>
+        </div>
+      </div>
+      <div class="submit-step">
+        <div class="submit-step-num">03</div>
+        <div class="submit-step-body">
+          <div class="submit-step-title">Jury reviews — you get paid</div>
+          <div class="submit-step-detail">
+            The jury votes by wallet signature. Simple majority.
+            On approval, the full ETH pool transfers to your address.
+            Your finding is archived. The archive is the work.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UNLOCK CONDITIONS -->
+    <div class="sec-label">◆ Unlock Conditions</div>
+    <div class="protocol-block">
+      <div class="protocol-label">A submission is valid if all of the following are true:</div>
+      <div class="protocol-rule">
+        <span class="rule-num">01</span>
+        <span class="rule-text">
+          It discloses a genuine vulnerability in the target's institutional architecture
+          <small>Symbolic, structural, or technical — both registers qualify</small>
+        </span>
+      </div>
+      <div class="protocol-rule">
+        <span class="rule-num">02</span>
+        <span class="rule-text">
+          It follows the submission format and contains sufficient detail to verify the finding
+          <small>Vague claims do not qualify — the disclosure must be specific and documented</small>
+        </span>
+      </div>
+      <div class="protocol-rule">
+        <span class="rule-num">03</span>
+        <span class="rule-text">
+          It passes review by the CICFA Jury (simple majority)
+          <small>Jury composition published below — no anonymous adjudication</small>
+        </span>
+      </div>
+      <div class="protocol-rule">
+        <span class="rule-num">04</span>
+        <span class="rule-text">
+          [Register B only] Survives 30-day responsible disclosure window without retraction
+          <small>Target institution notified via ransom letter; finding published after 30 days</small>
+        </span>
+      </div>
+    </div>
+
+    <!-- JURY -->
+    <div class="sec-label">◆ The Jury</div>
+
+    {% if jury_seats_open %}
+    <div class="jury-seats-block">
+      <div class="jury-seats-label">
+        ⊕ Jury Seats Open — {{ jury | length }}/{{ jury_max_seats }} Filled
+      </div>
+      <p>
+        The jury self-assembles from the first volunteers to register.
+        Once seated, your vote is signed with your wallet and recorded on-chain —
+        provably yours, provably permanent.
+      </p>
+      <a href="{{ jury_registration_url }}" class="wallet-btn" style="color:var(--accent2); border-color:#1a3a2a;">
+        [ Register as Juror → ]
+      </a>
+      <div style="font-size:10px; color:#2a2a2a; margin-top:0.65rem; letter-spacing:0.1em;">
+        Seats Remaining: {{ jury_max_seats - (jury | length) }}
+        &nbsp;//&nbsp; First Come, First Seated
+        &nbsp;//&nbsp; ETH Wallet Required
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="jury-grid">
+      {% if jury %}
+        {% for j in jury %}
+        <div class="jury-card">
+          <div class="jury-handle">{{ j.handle }}</div>
+          <div class="jury-role">{{ j.role }}</div>
+          {% if j.affiliation %}<div class="jury-affiliation">{{ j.affiliation }}</div>{% endif %}
+          {% if j.wallet %}<div class="jury-affiliation" style="font-size:9px; color:#1a1a1a; word-break:break-all; margin-top:0.25rem;">{{ j.wallet[:10] }}...{{ j.wallet[-6:] }}</div>{% endif %}
+        </div>
+        {% endfor %}
+      {% else %}
+      <div class="jury-empty" style="grid-column:1/-1;">
+        {% if jury_seats_open %}
+        NO JURORS REGISTERED YET — SEATS OPEN ABOVE
+        {% else %}
+        JURY COMPOSITION TBD — ANNOUNCED BEFORE DEADLINE
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+
+    {% if not jury_seats_open and jury %}
+    <div style="font-size:10px; color:#2a2a2a; letter-spacing:0.1em; margin-top:0.5rem; text-align:center;">
+      JURY SEALED — {{ jury | length }} MEMBERS — VOTING VIA WALLET SIGNATURE
+    </div>
+    {% endif %}
+
+    <!-- WHAT YOU WIN -->
+    <div class="reward-block">
+      <div class="reward-label">What You Win</div>
+      <div class="reward-line">Full ETH bounty pool transferred on jury approval</div>
+      <div class="reward-line">Public credit on the CICFA program dashboard</div>
+      <div class="reward-line">Exhibition attribution if selected for display</div>
+      <div class="reward-line">Your vulnerability enters the archive — the archive is the work</div>
+    </div>
+
+    <!-- SUBMIT CTA -->
+    <a href="{{ submission_url }}" class="submit-cta">
+      Submit Vulnerability Disclosure →
+    </a>
+  </div>
+
+  <!-- ── COUNTDOWN ──────────────────────────────────────────── -->
+  {% if deadline_iso %}
+  <div class="countdown">
+    <div class="countdown-label">Submission Window Closes In</div>
+    <div class="countdown-timer" id="countdown-timer">--:--:--:--</div>
+    <div class="countdown-deadline">{{ deadline_display }}</div>
+  </div>
+  {% endif %}
+
+  <!-- ── FOOTER ─────────────────────────────────────────────── -->
+  <footer class="site-footer">
+    <div class="footer-section-title">Responsible Disclosure Policy</div>
+    <p>
+      CICFA operates a responsible disclosure framework for white-hat technical findings
+      (Register B). All such submissions are held in strict confidence for a 30-day
+      notification window. The target institution is notified via a formal disclosure letter
+      before any public archival. The letter is itself a CICFA artifact.
+    </p>
+
+    <hr class="footer-rule">
+
+    <div class="footer-section-title">Ethics Statement</div>
+    <p>
+      The work is about violence, not violent.<br>
+      It stages symbolic systems, not real-world harm.<br>
+      It exposes fragility as aesthetic condition.<br>
+      No exploitation has occurred or will occur.<br>
+      The performance is already underway.
+    </p>
+
+    <hr class="footer-rule">
+
+    <p>
+      CICFA &mdash; <a href="{{ cicfa_url }}">{{ cicfa_url }}</a>
+      &mdash; {{ author }} &mdash; {{ program_code }}
+    </p>
+  </footer>
+
+</div><!-- /wrap -->
+
+<!-- ════ INLINE CONFIG ═══════════════════════════════════════ -->
+<script>
+const CICFA = {
+  walletAddress:   "{{ wallet_address }}",
+  walletEns:       "{{ wallet_ens }}",
+  rpcUrl:          "{{ rpc_url }}",
+  targetAmountEth: {{ target_amount_eth }},
+  deadlineIso:     "{{ deadline_iso }}",
+  submissionUrl:   "{{ submission_url }}",
+};
+</script>
+
+<!-- ════ SCRIPTS ═════════════════════════════════════════════ -->
+<script>
+/* ── LIVE ETH BALANCE ────────────────────────────────────────── */
+(function() {
+  const addr   = CICFA.walletAddress;
+  const rpc    = CICFA.rpcUrl;
+  const target = CICFA.targetAmountEth;
+  const valEl  = document.getElementById('pot-value');
+  const amtEl  = document.getElementById('pot-amount');
+  const fillEl = document.getElementById('pot-progress-fill');
+  const goalEl = document.getElementById('pot-goal-text');
+  const contEl = document.getElementById('pot-contributors-text');
+  const staticContributors = document.querySelectorAll('#contributors-body tr td:first-child').length;
+
+  if (!addr) {
+    valEl.textContent = '0.000';
+    amtEl.classList.remove('loading');
+    contEl.textContent = 'Wallet not yet configured';
+    goalEl.textContent = `Goal: Ξ ${target}`;
+    return;
+  }
+
+  async function fetchBalance() {
+    try {
+      const res = await fetch(rpc, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jsonrpc:'2.0', method:'eth_getBalance', params:[addr,'latest'], id:1 })
+      });
+      const data = await res.json();
+      if (data.result) return Number(BigInt(data.result)) / 1e18;
+    } catch(e) {}
+    return null;
+  }
+
+  function animateValue(el, from, to, duration) {
+    const start = performance.now();
+    (function step(now) {
+      const p = Math.min((now - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - p, 3);
+      el.textContent = (from + (to - from) * ease).toFixed(4);
+      if (p < 1) requestAnimationFrame(step);
+    })(performance.now());
+  }
+
+  async function update() {
+    const bal = await fetchBalance();
+    amtEl.classList.remove('loading');
+    if (bal !== null) {
+      animateValue(valEl, 0, bal, 1400);
+      setTimeout(() => { fillEl.style.width = Math.min((bal / target) * 100, 100) + '%'; }, 150);
+      goalEl.textContent = `${bal.toFixed(4)} / ${target} ETH`;
+      const cnt = staticContributors || 0;
+      contEl.textContent = cnt > 0 ? `${cnt} contributor${cnt !== 1 ? 's' : ''}` : 'Be the first contributor';
+    } else {
+      valEl.textContent = '0.000';
+      contEl.textContent = 'Unable to fetch — check Etherscan';
+      goalEl.textContent = `Goal: Ξ ${target}`;
+    }
+  }
+
+  update();
+  setInterval(update, 60000);
+})();
+
+/* ── COUNTDOWN ───────────────────────────────────────────────── */
+(function() {
+  if (!CICFA.deadlineIso) return;
+  const deadline = new Date(CICFA.deadlineIso).getTime();
+  const el = document.getElementById('countdown-timer');
+  if (!el) return;
+
+  function update() {
+    const diff = deadline - Date.now();
+    if (diff <= 0) { el.textContent = 'CLOSED'; el.className = 'countdown-timer red'; return; }
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000)  / 60000);
+    const s = Math.floor((diff % 60000)    / 1000);
+    el.textContent = `${String(d).padStart(2,'0')}d ${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
+    el.className = 'countdown-timer ' + (d > 7 ? 'green' : d >= 2 ? 'yellow' : 'red');
+  }
+  update();
+  setInterval(update, 1000);
+})();
+
+/* ── QR CODE ─────────────────────────────────────────────────── */
+let qrGenerated = false;
+function toggleQR() {
+  document.getElementById('qr-container').classList.toggle('visible');
+  if (!qrGenerated && typeof QRCode !== 'undefined' && CICFA.walletAddress) {
+    new QRCode(document.getElementById('qr-code'), {
+      text: 'ethereum:' + CICFA.walletAddress,
+      width: 160, height: 160,
+      colorDark: '#000', colorLight: '#fff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+    qrGenerated = true;
+  }
+}
+
+/* ── COPY ADDRESS — inline button swap, no floating toast ────── */
+function copyAddress() {
+  if (!CICFA.walletAddress) return;
+  navigator.clipboard.writeText(CICFA.walletAddress).then(() => {
+    const btn = document.getElementById('copy-btn');
+    const orig = btn.textContent;
+    btn.textContent = '[ COPIED ]';
+    setTimeout(() => { btn.textContent = orig; }, 1500);
+  });
+}
+</script>
+
+</body>
+</html>

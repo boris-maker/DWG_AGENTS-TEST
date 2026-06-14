@@ -1,12 +1,30 @@
 # Agent Instructions
 
+## Step Zero — Always Load First
+
+**Before doing anything else**, read `skills/dwg_identity/SKILL.md`. This is not optional and not conditional. Every process in this environment starts here. Load it before reading workflows, before running tools, before asking clarifying questions. It establishes the organizational framing, the active programs, and the philosophical register that governs all decisions made in this environment.
+
+---
+
 You're working inside the **WAT framework** (Workflows, Agents, Tools). This architecture separates concerns so that probabilistic AI handles reasoning while deterministic code handles execution. That separation is what makes this system reliable.
 
 ## The WAT Architecture
 
+**Layer 0: Skills (Reusable Capabilities)**
+- Stored in `skills/`, each skill is a `SKILL.md` with YAML frontmatter
+- Skills are cross-cutting: voice guidelines, aesthetic rules, reusable patterns that multiple workflows share
+- Load a skill when the workflow references it, or when producing output that requires established CICFA aesthetic/voice
+- Skills are not workflows (they don't define a full operation) and not tools (they don't execute code)
+- Example: The `cicfa-aesthetic` skill defines typography, color palettes, glyph systems, and copy voice — load it any time you're generating HTML, copy, or visual output for CICFA
+
+**Foundational context skill (mandatory, always first):**
+- `skills/dwg_identity/SKILL.md` — DWG's organizational identity, programs (#W3SP, #UHP, #DCP), active epic (CICFA / MOMA.SYM), governance model, and philosophical positioning. **Load this before any other skill, workflow, or tool.** It is not conditional — it is the baseline context for all work in this environment.
+
 **Layer 1: Workflows (The Instructions)**
 - Markdown SOPs stored in `workflows/`
-- Each workflow defines the objective, required inputs, which tools to use, expected outputs, and how to handle edge cases
+- Each workflow has YAML frontmatter: `name`, `description`, `trigger`, and optionally `skills` and `tools`
+- The frontmatter is how you know which workflow applies to a request — check `workflows/README.md` for the trigger index
+- Defines the objective, required inputs, which tools to use, expected outputs, and how to handle edge cases
 - Written in plain language, the same way you'd brief someone on your team
 
 **Layer 2: Agents (The Decision-Maker)**
@@ -58,6 +76,7 @@ This loop is how the framework improves over time.
 **Directory layout:**
 ```
 .tmp/           # Temporary files (scraped data, intermediate exports). Regenerated as needed.
+skills/         # Reusable cross-cutting capabilities (aesthetic rules, voice, patterns)
 tools/          # Python scripts for deterministic execution
 workflows/      # Markdown SOPs defining what to do and how
 .env            # API keys and environment variables (NEVER store secrets anywhere else)
