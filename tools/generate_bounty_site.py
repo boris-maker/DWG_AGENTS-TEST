@@ -13,9 +13,53 @@ must be set before deployment — see workflows/03a_operation_001.md.
 """
 
 import json
+import sys
 from pathlib import Path
 from datetime import datetime
 from jinja2 import Environment, FileSystemLoader
+
+# ── SAFETY INTERLOCK — DEE-30, added 2026-07-24 ─────────────────────────────
+# The bounty pool's private key is held by a third party. The wallet below was
+# swept on 2026-07-10 and the live page has stopped soliciting contributions.
+#
+# This template has not caught up. It is still the March original: it renders
+# "You are invited to arm the program", a click-to-copy address and a QR encoding
+# an `ethereum:` payment URI — all aimed at a wallet a thief can empty. It also
+# predates the RPC fallback chain, so it would restore `cloudflare-eth.com` (dead,
+# -32603) as the page's only RPC and permanently break the balance display.
+#
+# Regenerating from it therefore does not just lose fixes, it re-opens a public
+# invitation to send money to a thief. So this script refuses to run, rather than
+# leaving that one command away from happening by accident.
+#
+# To reopen it: remove the invitation, copy affordance and payment QR from
+# tools/templates/bounty_site.html, forward-port DEE-14/15/19/22/23/28/30 from
+# CICFA_PUBLIC/index.html (which is the source of truth for that page now), settle
+# the pot question on DEE-30, then set FUNDING_SUSPENDED = False.
+FUNDING_SUSPENDED = True
+
+_INTERLOCK_MSG = """
+============================================================
+REFUSING TO GENERATE — funding is suspended (DEE-30)
+============================================================
+The bounty pool's private key is compromised. The wallet was
+swept on 2026-07-10 and the live page no longer asks anyone
+to fund it.
+
+This template still does. Rendering it would republish:
+  - "You are invited to arm the program" + "send ETH to the
+    address below"
+  - the click-to-copy wallet affordance
+  - a QR encoding ethereum:0x7fC76C43...  (a payment URI for
+    an address a third party can drain)
+
+It would also revert seven shipped fixes, including the RPC
+fallback chain (DEE-14/23) — the pot display would break.
+
+CICFA_PUBLIC/index.html is the source of truth for that page.
+Edit it directly. See CICFA_PUBLIC/CLAUDE.md section 5.
+============================================================
+"""
 
 # ── CONFIG ──────────────────────────────────────────────────────────────────
 # Edit these values before running. See workflows/03_bounty_logic.md for
@@ -120,6 +164,10 @@ CONFIG = {
 # ── RENDER ───────────────────────────────────────────────────────────────────
 
 def main():
+    if FUNDING_SUSPENDED:
+        print(_INTERLOCK_MSG)
+        sys.exit(2)
+
     base_dir     = Path(__file__).parent
     template_dir = base_dir / "templates"
     output_dir   = base_dir.parent / ".tmp" / "bounty_site"

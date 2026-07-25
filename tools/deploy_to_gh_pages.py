@@ -94,6 +94,37 @@ def main():
         print("        Run `python tools/generate_bounty_site.py` first.")
         sys.exit(1)
 
+    # ── SAFETY INTERLOCK — DEE-30, added 2026-07-24 ──────────────
+    # The bounty pool's key is held by a third party; the wallet was swept
+    # 2026-07-10. The live page stopped soliciting contributions, but the
+    # artifact this script publishes is a March render that still asks for
+    # them — so deploying it would put the invitation back in front of the
+    # public. Refuse on the *content* rather than a flag: a genuinely fixed
+    # artifact still deploys, only a soliciting one is blocked.
+    SOLICITATION = [
+        "invited to arm",
+        "increases the prize",
+        "To fund the bounty",
+        'onclick="copyAddress()"',
+        "new QRCode",
+        "ethereum:' +",
+    ]
+    html = index_file.read_text(encoding="utf-8", errors="replace")
+    found = [p for p in SOLICITATION if p in html]
+    if found:
+        print("[ABORT] This artifact solicits contributions to a compromised wallet.")
+        print("        The bounty pool's private key is in someone else's hands and")
+        print("        the wallet was swept on 2026-07-10 (DEE-30). Publishing this")
+        print("        would ask the public to send ETH to a thief.")
+        print()
+        print(f"        Offending markers in {index_file}:")
+        for p in found:
+            print(f"          - {p}")
+        print()
+        print("        Fix the template, or edit CICFA_PUBLIC/index.html directly —")
+        print("        it is the source of truth for the live page. CLAUDE.md §5.")
+        sys.exit(2)
+
     print(f"[OK] Source: {source_dir}")
 
     # ── Validate target repo ─────────────────────────────────────
